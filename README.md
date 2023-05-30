@@ -18,7 +18,7 @@ Update Pip
 
 Run code
 ```
-python wordcount.py
+python wordcount.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/wordcount_minimal_results.txt
 ```
 
 Deactivate
