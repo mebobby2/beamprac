@@ -19,6 +19,10 @@ Update Pip
 Run code
 ```
 python wordcount.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/wordcount_minimal_results.txt
+
+or
+gcloud auth application-default login
+python taxi.py --input_topic projects/pubsub-public-data/topics/taxirides-realtime
 ```
 
 Deactivate
@@ -50,4 +54,10 @@ Docs
 Generating API documentation using Sphinx
 ```
 pip install 'apache-beam[docs]'
+```
+
+## Upto
+When running taxi.py get this error
+```
+google.api_core.exceptions.PermissionDenied: 403 User not authorized to perform this action.
 ```
