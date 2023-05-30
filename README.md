@@ -18,7 +18,7 @@ Update Pip
 
 Run code
 ```
-python wordcount_minimal.py
+python wordcount.py
 ```
 
 Deactivate

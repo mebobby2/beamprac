@@ -7,6 +7,10 @@ from apache_beam.io import WriteToText
 input_file = 'gs://dataflow-samples/shakespeare/kinglear.txt'
 output_path = '/Users/BobbyLei/Desktop/learn/beamprac/data/wordcount_minimal_results.txt'
 
+class WordExtract(beam.DoFn):
+  def process(self, element):
+    return re.findall(r'[\w\']+', element, re.UNICODE)
+
 beam_options = PipelineOptions()
 
 with beam.Pipeline(options=beam_options) as p:
@@ -15,18 +19,15 @@ with beam.Pipeline(options=beam_options) as p:
 
   counts = (
     lines
-    | 'Split' >> (
-      beam.FlatMap(
-        lambda x: re.findall(r'[A-Za-z\']+', x)).with_output_types(str))
+    | 'Split' >> (beam.ParDo(WordExtract()).with_output_types(str))
     | 'LowerCase' >> beam.Map(lambda x: x.lower())
     | 'PairWithOne' >> beam.Map(lambda x: (x,1))
     | 'GroupAndSum' >> beam.CombinePerKey(sum)
   )
 
-  def format_result(word_count):
-    (word, count) = word_count
+  def format_result(word, count):
     return '%s: %s' % (word, count)
 
-  output = counts | 'Format' >> beam.Map(format_result)
+  output = counts | 'Format' >> beam.MapTuple(format_result)
 
-  output | WriteToText(output_path)
+  output | 'Write' >> WriteToText(output_path)
