@@ -11,6 +11,16 @@ class WordExtract(beam.DoFn):
   def process(self, element):
     return re.findall(r'[\w\']+', element, re.UNICODE)
 
+class CountWords(beam.PTransform):
+  def expand(self, pcoll):
+    return (
+      pcoll
+      | 'Split' >> (beam.ParDo(WordExtract()).with_output_types(str))
+      | 'LowerCase' >> beam.Map(lambda x: x.lower())
+      | 'PairWithOne' >> beam.Map(lambda x: (x,1))
+      | 'GroupAndSum' >> beam.CombinePerKey(sum)
+    )
+
 def run(argv=None, save_main_session=True):
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -29,16 +39,7 @@ def run(argv=None, save_main_session=True):
   pipeline_options = PipelineOptions(pipeline_args)
 
   with beam.Pipeline(options=pipeline_options) as p:
-
-    lines = p | ReadFromText(known_args.input)
-
-    counts = (
-      lines
-      | 'Split' >> (beam.ParDo(WordExtract()).with_output_types(str))
-      | 'LowerCase' >> beam.Map(lambda x: x.lower())
-      | 'PairWithOne' >> beam.Map(lambda x: (x,1))
-      | 'GroupAndSum' >> beam.CombinePerKey(sum)
-    )
+    counts = p | ReadFromText(known_args.input) | CountWords()
 
     def format_result(word, count):
       return '%s: %s' % (word, count)
