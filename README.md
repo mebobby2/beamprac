@@ -23,6 +23,9 @@ python wordcount.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/wordcou
 or
 gcloud auth application-default login
 python taxi.py --input_topic projects/pubsub-public-data/topics/taxirides-realtime
+
+or
+python user_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/user_score.txt
 ```
 
 Deactivate
@@ -57,7 +60,6 @@ pip install 'apache-beam[docs]'
 ```
 
 ## Upto
-When running taxi.py get this error
-```
-google.api_core.exceptions.PermissionDenied: 403 User not authorized to perform this action.
-```
+https://beam.apache.org/get-started/mobile-gaming-example/
+
+HourlyTeamScore: Advanced Processing in Batch with Windowing
