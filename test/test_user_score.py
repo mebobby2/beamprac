@@ -1,8 +1,8 @@
 import logging
 import unittest
+import user_score
 
 import apache_beam as beam
-from apache_beam.examples.complete.game import user_score
 from apache_beam.testing.test_pipeline import TestPipeline
 from apache_beam.testing.util import assert_that
 from apache_beam.testing.util import equal_to
