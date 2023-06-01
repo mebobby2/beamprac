@@ -10,6 +10,7 @@ import argparse
 import csv
 import logging
 import sys
+import json
 import time
 from datetime import datetime
 
@@ -142,6 +143,7 @@ def run(argv=None, save_main_session=True):
         args.start_min, args.stop_min, args.window_duration
       )
       | 'TeamScoresDict' >> beam.ParDo(TeamScoresDict())
+      | 'FormatOutput' >> beam.Map(json.dumps)
       | 'WriteTeamScoreSums' >> beam.io.fileio.WriteToFiles(path=args.output, shards=1, max_writers_per_bundle=0)
     )
 
