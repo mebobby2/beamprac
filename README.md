@@ -26,6 +26,9 @@ python taxi.py --input_topic projects/pubsub-public-data/topics/taxirides-realti
 
 or
 python user_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/user_score.txt
+
+or
+python hourly_team_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/hourly_team_score --start_min 2015-11-16-16-00 --stop_min 2015-11-20-00-00 --window_duration 60
 ```
 
 Run Unit Tests (from root dir)
