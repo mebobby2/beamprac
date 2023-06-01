@@ -28,6 +28,11 @@ or
 python user_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/user_score.txt
 ```
 
+Run Unit Tests (from root dir)
+```
+python -m unittest
+```
+
 Deactivate
 ```
 deactivate
