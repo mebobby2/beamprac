@@ -71,5 +71,3 @@ pip install 'apache-beam[docs]'
 https://beam.apache.org/get-started/mobile-gaming-example/
 
 LeaderBoard: Streaming Processing with Real-Time Game Data
-
-Before that, see if you can get hourly_team_score to run on actual data. Seems like the windows are not triggering because Beam waits until the entire file (12gb) is loaded from google cloud storage before it goes to the next step?
