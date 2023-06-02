@@ -29,6 +29,9 @@ python user_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/user_s
 
 or
 python hourly_team_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/hourly_team_score --start_min 2015-11-16-16-00 --stop_min 2015-11-20-00-00 --window_duration 60
+
+or
+python leader_board.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/leader_board --team_window_duration 60 --allowed_lateness 120 --topic
 ```
 
 Run Unit Tests (from root dir)
@@ -70,4 +73,8 @@ pip install 'apache-beam[docs]'
 ## Upto
 https://beam.apache.org/get-started/mobile-gaming-example/
 
-LeaderBoard: Streaming Processing with Real-Time Game Data
+GameStats: Abuse Detection and Usage Analysis
+
+Before that: run the leaderboard pipeline.
+
+Use https://stackoverflow.com/questions/56269102/whats-the-commands-to-run-the-apache-beam-mobile-gaming-tutorials to run injector to publish data to our own pubsub topic
