@@ -123,3 +123,48 @@ cd word-count-beam
 export GOOGLE_APPLICATION_CREDENTIALS=~/Downloads/bobby-play-sa.txt
 
 mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.complete.game.injector.Injector -Dexec.args="harmoney-core-platform-dev game none"
+
+Threw an error message:
+Starting Injector
+[+(BananaEchidna, num members: 14, starting at: 1685710307490, expires in: 28, robot: null)]
+[+(AppleGreenPossum, num members: 18, starting at: 1685710307490, expires in: 36, robot: null)]
+[+(FuchsiaDingo, num members: 10, starting at: 1685710307490, expires in: 22, robot: Robot-10)]
+[+(AppleGreenMarmot, num members: 7, starting at: 1685710307490, expires in: 39, robot: null)]
+[+(ArmyGreenKookaburra, num members: 15, starting at: 1685710307490, expires in: 21, robot: null)]
+[+(AsparagusCockatoo, num members: 7, starting at: 1685710307490, expires in: 32, robot: null)]
+[+(AliceBlueWallaby, num members: 12, starting at: 1685710307490, expires in: 20, robot: null)]
+[+(AntiqueBrassWallaby, num members: 13, starting at: 1685710307490, expires in: 28, robot: Robot-6)]
+[+(MagentaWombat, num members: 7, starting at: 1685710307490, expires in: 22, robot: Robot-12)]
+[+(AuburnBandicoot, num members: 11, starting at: 1685710307491, expires in: 25, robot: Robot-18)]
+[+(BattleshipGreyWombat, num members: 11, starting at: 1685710307491, expires in: 25, robot: null)]
+[+(AntiqueBrassKookaburra, num members: 19, starting at: 1685710307491, expires in: 34, robot: null)]
+[+(AlmondAntechinus, num members: 14, starting at: 1685710307491, expires in: 32, robot: null)]
+[+(FuchsiaPossum, num members: 6, starting at: 1685710307491, expires in: 26, robot: null)]
+[+(AquaKoala, num members: 6, starting at: 1685710307491, expires in: 32, robot: null)]
+DELAY(323512, 1)
+{timestamp_ms=1685709983000}
+late data for: user1_MagentaWombat,MagentaWombat,6,1685709983000,2023-06-02 05:51:47.495
+.com.google.api.client.googleapis.json.GoogleJsonResponseException: 403 Forbidden
+{
+  "code" : 403,
+  "errors" : [ {
+    "domain" : "global",
+    "message" : "User not authorized to perform this action.",
+    "reason" : "forbidden"
+  } ],
+  "message" : "User not authorized to perform this action.",
+  "status" : "PERMISSION_DENIED"
+}
+
+Tried giving the SA permission, but my gcloud account has not permission to assign permissions
+gcloud alpha pubsub topics add-iam-policy-binding game --member="serviceAccount:bobby-play-sa@harmoney-core-platform-dev.iam.gserviceaccount.com" --role='roles/pubsub.editor'
+
+Tried to run injector with my gcloud account
+export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/application_default_credentials.json
+mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.complete.game.injector.Injector -Dexec.args="harmoney-core-platform-dev game none"
+but got error:
+***Warning! You are not using service account credentials to authenticate.
+You need to use service account credentials for this example,
+since user-level credentials do not have enough pubsub quota,
+and so you will run out of PubSub quota very quickly.
+See https://developers.google.com/identity/protocols/application-default-credentials.
