@@ -145,12 +145,15 @@ def run(argv=None, save_main_session=True):
       )
     )
 
+    def format_team_score_dict(team_score):
+      return 'team: %(team)s, total_score: %(total_score)s, window_start: %(window_start)s, processing_time: %(processing_time)s' % team_score
+
     (
       events
       | 'CalculateTeamScores' >> CalculateTeamScores(
         args.team_window_duration, args.allowed_lateness)
       | 'TeamScoresDict' >> beam.ParDo(TeamScoresDict())
-      | 'FormatOutput' >> beam.Map(json.dumps)
+      | 'FormatTeamScoresDict' >> beam.Map(format_team_score_dict)
       | 'WriteTeamScoreSums' >> beam.io.fileio.WriteToFiles(
           path=args.output,
           destination=lambda record: 'team_scores',
@@ -160,7 +163,7 @@ def run(argv=None, save_main_session=True):
 
     def format_user_score_sums(user_score):
       (user, score) = user_score
-      return {'user': user, 'total_score': score}
+      return 'user: %s, total_score: %s' % (user, score)
 
     (
       events
