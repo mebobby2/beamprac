@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 
 import apache_beam as beam
+from apache_beam.io import fileio
 from apache_beam.metrics.metric import Metrics
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 from apache_beam.options.pipeline_options import PipelineOptions
