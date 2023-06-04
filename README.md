@@ -75,5 +75,3 @@ pip install 'apache-beam[docs]'
 https://beam.apache.org/get-started/mobile-gaming-example/
 
 GameStats: Abuse Detection and Usage Analysis
-
-Before that: run the leaderboard pipeline.
