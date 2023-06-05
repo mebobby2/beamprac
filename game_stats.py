@@ -58,6 +58,32 @@ class CalculateSpammyUsers(beam.PTransform):
 
     return filtered
 
+class ExtractAndSumScore(beam.PTransform):
+  def __init__(self, field):
+    beam.PTransform.__init__(self)
+    self.field = field
+
+  def expand(self, pcoll):
+    return (
+      pcoll
+      | beam.Map(lambda elem: (elem[self.field], elem['score']))
+      | beam.CombinePerKey(sum))
+
+class TeamScoresDict(beam.DoFn):
+  def process(self, team_score, window=beam.DoFn.WindowParam):
+    team, score = team_score
+    start = timestamp2str(int(window.start))
+    yield {
+        'team': team,
+        'total_score': score,
+        'window_start': start,
+        'processing_time': timestamp2str(int(time.time()))
+    }
+
+class UserSessionActivity(beam.DoFn):
+   def process(self, elem, window=beam.DoFn.WindowParam):
+     yield (window.end.micros - window.start.micros) // 1000000
+
 def run(argv=None, save_main_session=True):
   parser = argparse.ArgumentParser()
 
@@ -122,7 +148,7 @@ def run(argv=None, save_main_session=True):
     spammers_view = (
       user_events
       | 'UserFixedWindows' >> beam.WindowInto(
-        beam.window.FixedWindows(fixed_window_duration))
+          beam.window.FixedWindows(fixed_window_duration))
 
       # Filter out everyone but those with (SCORE_WEIGHT * avg) clickrate.
       # These might be robots/spammers.
@@ -131,13 +157,64 @@ def run(argv=None, save_main_session=True):
       # Derive a view from the collection of spammer users. It will be used as
       # a side input in calculating the team score sums, below
       | 'CreateSpammersView' >> beam.CombineGlobally(
-        beam.combiners.ToDictCombineFn()).as_singleton_view())
+          beam.combiners.ToDictCombineFn()).as_singleton_view())
 
     # [START filter_and_calc]
     # Calculate the total score per team over fixed windows, and emit cumulative
     # updates for late data. Uses the side input derived above --the set of
     # suspected robots-- to filter out scores from those users from the sum.
+    def format_team_score_dict(team_score):
+      return 'team: %(team)s, total_score: %(total_score)s, window_start: %(window_start)s, processing_time: %(processing_time)s' % team_score
 
+    (
+      raw_events
+      | 'WindowIntoFixedWindows' >> beam.WindowInto(
+          beam.window.FixedWindows(fixed_window_duration))
+
+      # Filter out the detected spammer users, using the side input derived
+      # above
+      | ' FilterOutSpammers' >> beam.Filter(
+        lambda elem, spammers: elem['user'] not in spammers, spammers_view)
+      # Extract and sum teamname/score pairs from the event data.
+      | 'ExtractAndSumScore' >> ExtractAndSumScore('team')
+      | 'TeamScoresDict' >> beam.ParDo(TeamScoresDict())
+      | 'FormatTeamScoresDict' >> beam.Map(format_team_score_dict)
+      | 'WriteTeamScoreSums' >> beam.io.fileio.WriteToFiles(
+          path=args.output,
+          destination=lambda record: 'team_scores',
+          file_naming=beam.io.fileio.destination_prefix_naming()
+          )
+    )
+
+    # [START session_calc]
+    # Detect user sessions-- that is, a burst of activity separated by a gap
+    # from further activity. Find and record the mean session lengths.
+    # This information could help the game designers track the changing user
+    # engagement as their set of game changes.
+    (
+      user_events
+      | 'WindowIntoSessions' >> beam.WindowInto(
+          beam.window.Sessions(session_gap),
+          timestamp_combiner=beam.window.TimestampCombiner.OUTPUT_AT_EOW)
+
+      # For this use, we care only about the existence of the session, not any
+      # particular information aggregated over it, so we can just group by key
+      # and assign a "dummy value" of None.
+      | beam.CombinePerKey(lambda _: None)
+
+      # Get the duration of the session
+      | 'UserSessionActivity' >> beam.ParDo(UserSessionActivity())
+
+      # Find the mean session duration in each window
+      | beam.CombineGlobally(
+          beam.combiners.MeanCombineFn()).without_defaults()
+      | 'FormatAvgSessionLength' >> beam.Map(lambda elem: {'mean_duration': float(elem)})
+      | 'WriteAvgSessionLength' >> beam.io.fileio.WriteToFiles(
+          path=args.output,
+          destination=lambda record: 'sessions',
+          file_naming=beam.io.fileio.destination_prefix_naming()
+          )
+    )
 
 if __name__ == '__main__':
   logging.getLogger().setLevel(logging.INFO)
