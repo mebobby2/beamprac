@@ -217,7 +217,7 @@ def run(argv=None, save_main_session=True):
       # Find the mean session duration in each window
       | beam.CombineGlobally(
           beam.combiners.MeanCombineFn()).without_defaults()
-      | 'FormatAvgSessionLength' >> beam.Map(lambda elem: {'mean_duration': float(elem)})
+      | 'FormatAvgSessionLength' >> beam.Map(lambda elem: 'mean_duration: %s' % elem)
       | 'WriteAvgSessionLength' >> beam.io.fileio.WriteToFiles(
           path=args.output,
           destination=lambda record: 'sessions',
