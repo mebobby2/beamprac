@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 
 import apache_beam as beam
+from apache_beam.io import fileio
 from apache_beam.metrics.metric import Metrics
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 from apache_beam.options.pipeline_options import PipelineOptions
@@ -108,6 +109,8 @@ def run(argv=None, save_main_session=True):
       default=30,
       help='Numeric value of fixed window for finding mean of '
       'user session duration, in minutes')
+  parser.add_argument(
+      '--output', type=str, required=True, help='Path to the output file(s).')
 
   args, pipeline_args = parser.parse_known_args(argv)
 
@@ -204,6 +207,12 @@ def run(argv=None, save_main_session=True):
 
       # Get the duration of the session
       | 'UserSessionActivity' >> beam.ParDo(UserSessionActivity())
+
+      # [START rewindow]
+      # Re-window to process groups of session sums according to when the
+      # sessions complete
+      | 'WindowToExtractSessionMean' >> beam.WindowInto(
+        beam.window.FixedWindows(user_activity_window_duration))
 
       # Find the mean session duration in each window
       | beam.CombineGlobally(

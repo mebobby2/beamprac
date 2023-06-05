@@ -33,6 +33,10 @@ python hourly_team_score.py --output /Users/BobbyLei/Desktop/learn/beamprac/data
 or
 <follow instructions to run PubSub locally first>
 python leader_board.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/leader_board --team_window_duration 60 --allowed_lateness 120 --topic projects/harmoney-core-platform-dev/topics/gamescores
+
+or
+<follow instructions to run PubSub locally first>
+python game_stats.py --output /Users/BobbyLei/Desktop/learn/beamprac/data/game_stats --fixed_window_duration 60 --session_gap 5 --user_activity_window_duration 30 --topic projects/harmoney-core-platform-dev/topics/gamescores
 ```
 
 Run Unit Tests (from root dir)
